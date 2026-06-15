@@ -1,0 +1,65 @@
+# =============
+# Godot Files
+# =============
+# Godot 4 cache directory (editor state, import cache, shader cache — regenerates per machine)
+.godot/
+
+# =============
+# C# / .NET
+# =============
+# IMPORTANT: .csproj and .sln MUST be committed (they are core project config).
+# Only ignore per-user / build artifacts:
+.vs/
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.pidb
+*.swp
+
+# Mono / NuGet
+.mono/
+nuget.exe
+
+# =============
+# IDE / Editor
+# =============
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =============
+# OS
+# =============
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =============
+# Build / Output
+# =============
+build/
+dist/
+*.app
+
+# =============
+# Logs
+# =============
+*.log
+
+# =============
+# Temporary
+# =============
+tmp/
+temp/
+.cache/
+
+# =============
+# AI Art Assets (keep processed, ignore originals if too large)
+# =============
+# Uncomment if AI assets become too large for repository
+# assets/ai_generated/originals/
