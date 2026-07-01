@@ -59,6 +59,16 @@ temp/
 .cache/
 
 # =============
+# Obsidian Vault
+# =============
+# Per-user files (do NOT commit)
+.obsidian/workspace.json
+.obsidian/hotkeys.json
+.obsidian/plugins/
+.obsidian/themes/
+.obsidian/snippets/
+
+# =============
 # AI Art Assets (keep processed, ignore originals if too large)
 # =============
 # Uncomment if AI assets become too large for repository

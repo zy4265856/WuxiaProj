@@ -1,0 +1,20 @@
+{
+  "newFileLocation": "folder",
+  "newFileFolderPath": "docs",
+  "attachmentFolderPath": "docs/attachments",
+  "userIgnoreFilters": [
+    ".git/",
+    ".gitattributes",
+    ".gitignore",
+    "*.csproj",
+    "*.csproj.old",
+    "*.sln",
+    "*.godot",
+    "*.cfg",
+    "export_presets.cfg"
+  ],
+  "alwaysUpdateLinks": true,
+  "showUnsupportedFiles": true,
+  "trashOption": "local",
+  "promptDelete": true
+}
