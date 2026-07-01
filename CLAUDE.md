@@ -55,6 +55,7 @@ WuxiaProj/
 │   ├── plans/                 # 设计文档，命名 YYYY-MM-DD-名称.md
 │   │   ├── 2026-06-12-wuxia-game-design-outline.md       # 总设计大纲
 │   │   └── 2026-06-15-combat-system-detailed-design.md   # 战斗系统详设
+│   ├── brainstorm/            # 头脑风暴/未定型草稿
 │   └── COLLABORATION_GUIDE.md
 ├── assets/  (规划)            # 美术/音频：ai_generated/ 原始 + sprites/ 成品
 └── scripts/ (规划)            # GDScript（尚未创建）
