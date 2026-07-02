@@ -69,6 +69,11 @@ temp/
 .obsidian/snippets/
 
 # =============
+# Superpowers (brainstorming companion artifacts)
+# =============
+.superpowers/
+
+# =============
 # AI Art Assets (keep processed, ignore originals if too large)
 # =============
 # Uncomment if AI assets become too large for repository
