@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using R3;
 using WuxiaProj.Framework;
-using WuxiaProj.UI.Models;
 
-namespace WuxiaProj.UI.ViewModels;
+namespace WuxiaProj.DevSample;
 
 /// <summary>
 /// 角色属性面板的 ViewModel。将 Model 数据转换为 View 可直接绑定的 R3 响应式属性。

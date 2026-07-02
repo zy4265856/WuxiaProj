@@ -1,9 +1,8 @@
 using Godot;
 using R3;
 using WuxiaProj.Framework;
-using WuxiaProj.UI.ViewModels;
 
-namespace WuxiaProj.UI.Views;
+namespace WuxiaProj.DevSample;
 
 /// <summary>
 /// 角色属性面板 View。需配合 CharacterSheet.tscn 场景使用，

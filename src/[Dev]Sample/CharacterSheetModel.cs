@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using WuxiaProj.Framework;
 
-namespace WuxiaProj.UI.Models;
+namespace WuxiaProj.DevSample;
 
 /// <summary>
 /// 角色属性面板的 Model 层。从 ObjectManager / ConfigDataManager 获取角色数据。

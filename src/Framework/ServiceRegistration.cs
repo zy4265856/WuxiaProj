@@ -1,6 +1,5 @@
+using WuxiaProj.DevSample;
 using WuxiaProj.Framework;
-using WuxiaProj.UI.Models;
-using WuxiaProj.UI.ViewModels;
 
 namespace WuxiaProj;
 
