@@ -106,11 +106,8 @@ public class JsonImpl : ISerializer
         CancellationToken ct = default)
     {
         var json = JsonConvert.SerializeObject(value);
-        var byteCount = Utf8NoBom.GetByteCount(json);
-        var span = writer.GetSpan(byteCount);
-        Utf8NoBom.GetBytes(json, span);
-        writer.Advance(byteCount);
-        await writer.FlushAsync(ct);
+        var bytes = Utf8NoBom.GetBytes(json);
+        await writer.WriteAsync(new ReadOnlyMemory<byte>(bytes), ct);
     }
 
     public async ValueTask<T?> DeserializeAsync<T>(PipeReader reader,
