@@ -11,9 +11,7 @@ WuxiaProj 是一款 **2D 武侠题材回合制策略 RPG**：骰子驱动战棋 
 
 ## 2. 当前阶段
 
-**设计 / 头脑风暴阶段**。代码仅有最小脚手架（`Game.cs`、`Main.cs`），核心系统仍在设计文档中演进。
-
-> ⚠️ 代码结构、目录划分、命名空间等约定**尚未固化**，本阶段不写入硬性规则，后续确定后再补充。新增代码请跟随现有两个文件的写法，但**不要自行发明复杂的目录/命名规则**。
+**设计 / 头脑风暴阶段**。核心系统仍在设计文档中演进，代码框架已初步搭建。
 
 ## 3. 技术栈
 
@@ -86,7 +84,16 @@ WuxiaProj/
 - **场景文件 `.tscn`**：文本格式可合并，但多人改同一场景易冲突；优先在编辑器内操作。
 - **AI 美术资源**：保留原始文件与生成参数；来源记入 `docs/ASSET_LOG.md`（待创建）与 `assets/ai_generated/`。
 
-## 9. 参考文档
+## 9. 代码规则
+
+1. **命名空间即目录。** 文件作用域命名空间（`namespace X;`），层级对应目录结构。
+2. **类型命名跟现有走。** 管理器 `XxxManager`、接口 `I` 前缀、枚举无前后缀、工具类 `XxxUtils`。新类型看一眼同目录文件就知道该叫什么。
+3. **Godot 与 C# 各司其职。** 挂场景节点的类 `partial` 继承 Node/Control，纯逻辑类不碰 Godot API。Autoload 单例写法照抄任一现有 Manager。
+4. **MVVM 三层各管各的。** Model 纯数据、ViewModel 响应式属性、View（`UiPanel`）只做节点绑定。View 不从 `new` 开始，从 `ServiceLocator` 拿 VM。订阅必须有归宿（VM 的 `Disposables` 或 View 的 `ViewDisposables`）。
+5. **错误分三级。** 警告 `GD.PushWarning`、错误 `GD.PushError`、硬失败 `throw`。
+6. **待补功能标 `// TODO:`。**
+
+## 10. 参考文档
 
 - 设计总纲：`docs/plans/2026-06-12-wuxia-game-design-outline.md`
 - 战斗系统详设：`docs/plans/2026-06-15-combat-system-detailed-design.md`
