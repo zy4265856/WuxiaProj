@@ -140,4 +140,14 @@
 
 ---
 
+## 相关文档
+
+- [[2026-06-12-wuxia-game-design-outline|总设计大纲]] — 属性在整体框架中的位置
+- [[2026-06-15-combat-system-detailed-design|战斗系统详细设计]] — 属性在战斗中的应用
+- [[2026-06-26-worldview-design|武侠世界观总纲]] — 内外家分流（气劲/内息）的世界观基础
+- [[2026-07-02-combat-system-code-framework-design|战斗系统代码框架设计]] — 属性代码实现
+- [[2026-07-02-save-system-design|存档系统代码框架设计]] — 属性持久化规范
+
+---
+
 最后更新：2026-06-26

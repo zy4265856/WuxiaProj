@@ -416,4 +416,13 @@ src/
 
 ---
 
+## 相关文档
+
+- [[2026-06-12-wuxia-game-design-outline|总设计大纲]] — 游戏整体设计方向
+- [[2026-07-02-framework-scaffold-design|游戏基础框架脚手架设计]] — 五管理器架构（UiManager 在其中的定位）
+- [[2026-07-02-combat-system-code-framework-design|战斗系统代码框架设计]] — 战斗 UI 数据绑定参考
+- [[2026-07-02-save-system-design|存档系统代码框架设计]] — 存档界面 MVVM 参考
+
+---
+
 最后更新：2026-07-02

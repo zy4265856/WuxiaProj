@@ -311,4 +311,13 @@ public class SaveSlotInfo
 
 ---
 
+## 相关文档
+
+- [[2026-07-02-framework-scaffold-design|游戏基础框架脚手架设计]] — 五管理器架构与初始化顺序（SaveDataManager 同属 Framework 层）
+- [[2026-06-25-attribute-system-design|属性系统设计]] — 需持久化的属性体系
+- [[2026-07-02-combat-system-code-framework-design|战斗系统代码框架设计]] — 战斗状态持久化参考
+- [[2026-07-02-ui-mvvm-design|UI MVVM 技术规范]] — 存档界面 MVVM 参考
+
+---
+
 最后更新：2026-07-02

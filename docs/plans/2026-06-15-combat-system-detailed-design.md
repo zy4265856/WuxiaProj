@@ -565,4 +565,13 @@ UI展示：
 
 ---
 
+## 相关文档
+
+- [[2026-06-12-wuxia-game-design-outline|总设计大纲]] — 游戏整体设计方向
+- [[2026-06-25-attribute-system-design|属性系统设计]] — 属性体系定义（骰面公式缩放输入）
+- [[2026-06-26-worldview-design|武侠世界观总纲]] — 世界观设定（中武写实基调）
+- [[2026-07-02-combat-system-code-framework-design|战斗系统代码框架设计]] — C# 代码实现骨架
+
+---
+
 最后更新：2026-06-26

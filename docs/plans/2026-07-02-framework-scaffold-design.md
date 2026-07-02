@@ -308,4 +308,13 @@ void ShowLoading(bool show);
 
 ---
 
+## 相关文档
+
+- [[2026-06-12-wuxia-game-design-outline|总设计大纲]] — 游戏整体设计方向
+- [[2026-07-02-ui-mvvm-design|UI MVVM 技术规范]] — UI 层架构规范（UiManager 的上层封装）
+- [[2026-07-02-combat-system-code-framework-design|战斗系统代码框架设计]] — 基于本框架的 Core 层代码骨架
+- [[2026-07-02-save-system-design|存档系统代码框架设计]] — 持久化层规范（SaveDataManager 同属 Framework 层）
+
+---
+
 最后更新：2026-07-02

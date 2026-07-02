@@ -170,4 +170,13 @@
 
 ---
 
+## 相关文档
+
+- [[2026-06-12-wuxia-game-design-outline|总设计大纲]] — 世界与探索结构
+- [[2026-06-15-combat-system-detailed-design|战斗系统详细设计]] — 战棋战斗设计
+- [[2026-06-25-attribute-system-design|属性系统设计]] — 内外家（气劲/内息）分流
+- [[2026-07-02-combat-system-code-framework-design|战斗系统代码框架设计]] — 世界观元素在代码层的体现
+
+---
+
 最后更新：2026-06-26
