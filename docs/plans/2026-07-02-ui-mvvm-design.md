@@ -224,25 +224,16 @@ public static class UiBinding
 vm.Level.BindToSlider(_levelSlider).AddTo(ViewDisposables);
 ```
 
-### 4.2 集合同步
+### 4.2 集合同步（待 R3 补充）
+
+> ⚠️ R3 1.x 不含 `ReactiveCollection<T>`，该方法留作扩展预留。当前版本由 View 手动管理列表子节点。
 
 ```csharp
+// 预留接口：后续版本或引入 ObservableCollections 包后实现
 public static IDisposable SyncTo<T>(
     this ReactiveCollection<T> collection,
     Container parent,
     Func<T, Control> createView)
-{
-    // 1. 初始全量同步
-    foreach (var item in collection)
-        parent.AddChild(createView(item));
-    // 2. ObserveAdd → createView + AddChild
-    var add = collection.ObserveAdd().Subscribe(ev =>
-        parent.AddChild(createView(ev.Value)));
-    // 3. ObserveRemove → QueueFree
-    var rem = collection.ObserveRemove().Subscribe(ev =>
-        parent.GetChild(ev.Index).QueueFree());
-    return Disposable.Combine(add, rem);
-}
 ```
 
 ### 4.3 按钮命令绑定
@@ -253,18 +244,18 @@ public static IDisposable BindCommand(
     ReactiveCommand command)
 {
     button.Pressed += () => command.Execute(Unit.Default);
-    var sub = command.CanExecute.Subscribe(can => button.Disabled = !can);
-    return Disposable.Create(() => sub.Dispose());
+    // 注意：R3 1.x 中 CanExecute 为方法(CanExecute(T))而非可观察属性，
+    // CanExecute 灰显需在 View 中另做订阅
+    return Disposable.Create(() => { });
 }
-```
 
 ### 4.4 工具类总览
 
 | 方法 | 方向 | 场景 |
 |------|------|------|
-| `BindBidirectional<T>` | ↔ | Slider/SpinBox ↔ ReactiveProperty |
-| `BindCommand` | → | Button → ReactiveCommand（含 CanExecute） |
-| `SyncTo<T>` | → | ReactiveCollection → 列表容器 |
+| `BindToSlider` | ↔ | Slider ↔ ReactiveProperty&lt;int&gt; |
+| `BindCommand` | → | Button → ReactiveCommand（点击执行） |
+| `SyncTo<T>` | → | ReactiveCollection → 列表容器（待 R3 补充） |
 | `Subscribe` | ← | 通用单向（R3 原生，不封装） |
 
 ---
