@@ -31,11 +31,7 @@ public static class BuffEffectCompiler
         return result;
     }
 
-    private static Type? ResolveContextType(string contextTypeName)
-    {
-        var fullName = $"WuxiaProj.Combat.{contextTypeName}";
-        return typeof(BuffEffectCompiler).Assembly.GetType(fullName);
-    }
+    private static Type? ResolveContextType(string name) => HookContext.ResolveContextType(name);
 
     private static Action<HookContext>? CompileEntry(BuffHookEntry entry, Type contextType)
     {

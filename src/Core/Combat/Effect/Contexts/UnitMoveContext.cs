@@ -7,6 +7,10 @@ namespace WuxiaProj.Combat;
 /// </summary>
 public class UnitMoveContext : HookContext
 {
+    static UnitMoveContext()
+    {
+        RegisterContextType("UnitMoveContext", typeof(UnitMoveContext));
+    }
     public Vector2I From { get; init; }
     public Vector2I To { get; set; }
     public int Distance { get; set; }

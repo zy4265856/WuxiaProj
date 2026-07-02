@@ -5,6 +5,10 @@ namespace WuxiaProj.Combat;
 /// </summary>
 public class ApplyBuffContext : HookContext
 {
+    static ApplyBuffContext()
+    {
+        RegisterContextType("ApplyBuffContext", typeof(ApplyBuffContext));
+    }
     public string BuffConfigId { get; init; } = "";
     public int Duration { get; set; }
     public int StackCount { get; set; } = 1;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace WuxiaProj.Combat;
@@ -5,9 +6,27 @@ namespace WuxiaProj.Combat;
 /// <summary>
 /// Hook 上下文基类。携带一次原子操作执行所需的全部可变数据与黑板。
 /// 子类通过 BeforeOpExecute / AfterOpExecute 控制自身在管线中的调度行为。
+/// 子类须在静态构造器中调用 RegisterContextType() 登记短名 → Type 映射。
 /// </summary>
 public abstract class HookContext
 {
+    private static readonly Dictionary<string, Type> ContextTypeRegistry = new();
+
+    /// <summary>
+    /// 子类静态构造器中调用，登记短名（如 "HpModifyContext"）到 Type 的映射。
+    /// </summary>
+    protected static void RegisterContextType(string name, Type contextType)
+    {
+        ContextTypeRegistry[name] = contextType;
+    }
+
+    /// <summary>
+    /// 根据短名查找上下文类型。BuffEffectCompiler 在编译阶段调用。
+    /// </summary>
+    internal static Type? ResolveContextType(string name)
+    {
+        return ContextTypeRegistry.TryGetValue(name, out var type) ? type : null;
+    }
     public bool IsCancelled { get; set; }
 
     public List<IAtomicOp> AppendedOps { get; } = new();
