@@ -74,6 +74,10 @@ WuxiaProj/
 - **(a) 实现或修改任何游戏系统前，必须先阅读 `docs/plans/` 中对应的设计文档**（如骰子 / 战斗 / 存档），确保实现与设计一致；设计存在矛盾或缺失时先提出，不要自行拍板大改。
 - **(b) 提交信息采用 Conventional Commits，描述用中文。** 不在 `main` 上直接做大改，先开分支。
 - **(c) 改动设计文档时**：更新文档底部「最后更新」日期（改为当天），并保持 `YYYY-MM-DD-名称.md` 命名；新增的待补充文档（如存档系统）按该命名法创建占位链接。
+- **(d) 文档引用同步**（硬性）：每当 `docs/plans/` 下有设计文档新增或内容修改时，必须同步更新相关文档间的交叉引用：
+  - 新文档自身必须包含「相关文档」小节，链接到与之有承接/依赖关系的已有文档。
+  - 已有文档中引用了该文档的（或其内容与本次变更相关的），需在「相关文档」小节中补上反向链接。
+  - 引用格式统一使用 Obsidian Wikilink：`[[YYYY-MM-DD-名称|显示名称]]`。`docs/brainstorm/` 下的草稿不纳入引用体系。
 
 ## 8. 易踩坑 / 关键规则
 
@@ -86,10 +90,16 @@ WuxiaProj/
 
 - 设计总纲：`docs/plans/2026-06-12-wuxia-game-design-outline.md`
 - 战斗系统详设：`docs/plans/2026-06-15-combat-system-detailed-design.md`
+- 属性系统设计：`docs/plans/2026-06-25-attribute-system-design.md`
+- 武侠世界观总纲：`docs/plans/2026-06-26-worldview-design.md`
+- 框架脚手架设计：`docs/plans/2026-07-02-framework-scaffold-design.md`
+- UI MVVM 技术规范：`docs/plans/2026-07-02-ui-mvvm-design.md`
+- 战斗系统代码框架设计：`docs/plans/2026-07-02-combat-system-code-framework-design.md`
+- 存档系统代码框架设计：`docs/plans/2026-07-02-save-system-design.md`
 - 贡献指南：`CONTRIBUTING.md`
 - 协作指南（Git/GitHub 新手向）：`docs/COLLABORATION_GUIDE.md`
 - 项目说明：`README.md`
 
 ---
 
-最后更新：2026-06-25
+最后更新：2026-07-02
