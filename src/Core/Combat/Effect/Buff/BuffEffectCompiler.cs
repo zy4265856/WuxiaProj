@@ -19,23 +19,21 @@ public static class BuffEffectCompiler
 
         foreach (var entry in config.Hooks)
         {
-            var hookType = ResolveHookType(entry.HookType);
-            if (hookType == null) continue;
-
-            var contextType = hookType.BaseType?.GetGenericArguments()[0];
+            var contextType = ResolveContextType(entry.ContextType);
+            var phase = entry.Phase == "After" ? HookPhase.After : HookPhase.Before;
             if (contextType == null) continue;
 
             var handler = CompileEntry(entry, contextType);
             if (handler != null)
-                result.Handlers[hookType] = handler;
+                result.Handlers[(contextType, phase)] = handler;
         }
 
         return result;
     }
 
-    private static Type? ResolveHookType(string hookTypeName)
+    private static Type? ResolveContextType(string contextTypeName)
     {
-        var fullName = $"WuxiaProj.Combat.{hookTypeName}";
+        var fullName = $"WuxiaProj.Combat.{contextTypeName}";
         return typeof(BuffEffectCompiler).Assembly.GetType(fullName);
     }
 
@@ -43,15 +41,12 @@ public static class BuffEffectCompiler
     {
         try
         {
-            // 参数: TContext typed（内部使用的类型化变量）
             var typedParam = Expression.Parameter(contextType, "typed");
 
-            // 条件表达式
             Expression? conditionExpr = string.IsNullOrEmpty(entry.Condition)
                 ? null
                 : ParseCondition(entry.Condition, typedParam, contextType);
 
-            // 动作表达式列表
             var actionExprs = new List<Expression>();
             foreach (var action in entry.Actions)
             {
@@ -67,7 +62,6 @@ public static class BuffEffectCompiler
                 ? (Expression)Expression.IfThen(conditionExpr, Expression.Block(actionExprs))
                 : Expression.Block(actionExprs);
 
-            // 包装为 (HookContext ctx) => { var typed = (TContext)ctx; body; }
             var baseParam = Expression.Parameter(typeof(HookContext), "ctx");
             var typedVar = Expression.Variable(contextType, "typed");
             var cast = Expression.Assign(typedVar, Expression.Convert(baseParam, contextType));
@@ -81,16 +75,15 @@ public static class BuffEffectCompiler
         }
         catch (Exception ex)
         {
-            Godot.GD.PushError($"[BuffEffectCompiler] 编译 Hook {entry.HookType} 失败: {ex.Message}");
+            Godot.GD.PushError($"[BuffEffectCompiler] 编译 Hook {entry.ContextType}.{entry.Phase} 失败: {ex.Message}");
             return null;
         }
     }
 
-    // ── 解析器占位（后续迭代实现完整解析器） ──
+    // ── 解析器（骨架实现） ──
 
     private static Expression ParseCondition(string condition, ParameterExpression ctxParam, Type contextType)
     {
-        // 简单实现：解析 "ctx.Xxx == value" 形式的条件
         condition = condition.Trim();
 
         if (TryParseComparison(condition, ctxParam, contextType, out var expr))
@@ -105,7 +98,6 @@ public static class BuffEffectCompiler
     {
         expr = Expression.Constant(true);
 
-        // 支持 == / != 比较
         foreach (var op in new[] { "==", "!=" })
         {
             var idx = condition.IndexOf(op, StringComparison.Ordinal);
@@ -131,15 +123,12 @@ public static class BuffEffectCompiler
         if (action is not string code) return null;
         code = code.Trim();
 
-        // ctx.Amount = value 形式的赋值
         if (TryParseAssignment(code, ctxParam, contextType, out var assignExpr))
             return assignExpr;
 
-        // ctx.Blackboard.Set("key", value)
         if (TryParseBlackboardSet(code, ctxParam, contextType, out var bbExpr))
             return bbExpr;
 
-        // ctx.IsCancelled = true
         if (code.StartsWith("ctx.IsCancelled", StringComparison.Ordinal))
             return ParseIsCancelled(code, ctxParam, contextType);
 
@@ -153,7 +142,7 @@ public static class BuffEffectCompiler
         expr = Expression.Empty();
 
         var eqIdx = code.IndexOf('=');
-        if (eqIdx < 0 || code.Contains("==")) return false; // 排除比较
+        if (eqIdx < 0 || code.Contains("==")) return false;
 
         var left = code[..eqIdx].Trim();
         var right = code[(eqIdx + 1)..].Trim();
@@ -162,8 +151,8 @@ public static class BuffEffectCompiler
 
         if (!left.StartsWith("ctx.", StringComparison.Ordinal)) return false;
 
-        var memberName = left[4..]; // "Amount" / "Blackboard.Xxx" 等
-        if (memberName.Contains('.')) return false; // 属性链暂不支持解析
+        var memberName = left[4..];
+        if (memberName.Contains('.')) return false;
 
         var property = contextType.GetProperty(memberName);
         if (property == null || !property.CanWrite) return false;
@@ -178,10 +167,9 @@ public static class BuffEffectCompiler
         Type contextType, out Expression expr)
     {
         expr = Expression.Empty();
-        // 格式: ctx.Blackboard.Set("key", value)
         if (!code.StartsWith("ctx.Blackboard.Set(", StringComparison.Ordinal)) return false;
 
-        var inner = code[20..^1]; // 去掉 "ctx.Blackboard.Set(" 和 ")"
+        var inner = code[20..^1];
         var parts = SplitArgs(inner);
         if (parts.Length < 2) return false;
 
@@ -192,7 +180,6 @@ public static class BuffEffectCompiler
         var bbExpr = Expression.Property(ctxParam, blackboardProp);
         var setMethod = typeof(Blackboard).GetMethod("Set")!;
 
-        // 根据 value 类型推断泛型参数
         var valueExpr = ParseValue(valuePart, ctxParam, contextType);
 
         Type valueType;
@@ -214,43 +201,33 @@ public static class BuffEffectCompiler
         return Expression.Assign(Expression.Property(ctxParam, prop), Expression.Constant(value));
     }
 
-    /// <summary>
-    /// 解析值表达式：数字字面量、字符串字面量、ctx.Property、ctx.Blackboard.Get&lt;T&gt;("key")
-    /// </summary>
     private static Expression ParseValue(string code, ParameterExpression ctxParam, Type contextType)
     {
         code = code.Replace(" ", "");
 
-        // 整数
         if (int.TryParse(code, out var intVal))
             return Expression.Constant(intVal);
 
-        // true/false
         if (code == "true") return Expression.Constant(true);
         if (code == "false") return Expression.Constant(false);
 
-        // 字符串字面量
         if (code.StartsWith("'") && code.EndsWith("'"))
             return Expression.Constant(code[1..^1]);
         if (code.StartsWith("\"") && code.EndsWith("\""))
             return Expression.Constant(code[1..^1]);
 
-        // ctx.Property
         if (code.StartsWith("ctx.", StringComparison.Ordinal))
         {
             var memberChain = code[4..];
 
-            // ctx.Blackboard.Get<T>("key")
             if (memberChain.StartsWith("Blackboard.Get<", StringComparison.Ordinal))
                 return ParseBlackboardGet(memberChain, ctxParam, contextType);
 
-            // ctx.Amount 等简单属性
             var prop = contextType.GetProperty(memberChain);
             if (prop != null)
                 return Expression.Property(ctxParam, prop);
         }
 
-        // self 关键字
         if (code == "self")
             return Expression.Property(ctxParam, contextType.GetProperty("TargetUnit")!);
 
@@ -261,7 +238,6 @@ public static class BuffEffectCompiler
     private static Expression ParseBlackboardGet(string memberChain, ParameterExpression ctxParam,
         Type contextType)
     {
-        // "Blackboard.Get<int>("key")"
         var genericStart = memberChain.IndexOf('<') + 1;
         var genericEnd = memberChain.IndexOf('>');
         var typeName = memberChain[genericStart..genericEnd];
@@ -288,7 +264,6 @@ public static class BuffEffectCompiler
 
     private static string[] SplitArgs(string args)
     {
-        // 简单逗号分割（不处理嵌套引号中的逗号）
         var parts = new List<string>();
         var depth = 0;
         var start = 0;

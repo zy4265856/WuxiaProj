@@ -6,7 +6,7 @@ namespace WuxiaProj.Combat;
 
 /// <summary>
 /// 原子操作管线调度器。每个 IAtomicOp 执行时经过：
-///   组装上下文 → Fire Before → 检查 Cancel → Execute → Fire After → 执行追加指令
+///   组装上下文 → ctx.BeforeOpExecute → 检查 Cancel → Execute → ctx.AfterOpExecute → 执行追加指令
 /// </summary>
 public class OpExecutor
 {
@@ -23,8 +23,8 @@ public class OpExecutor
     /// </summary>
     public void Execute(IAtomicOp op, HookContext context)
     {
-        // 1. Fire Before Hook
-        FireHook(context, isBefore: true);
+        // 1. Before 阶段：上下文自己触发 HookBus
+        context.BeforeOpExecute(_hookBus);
 
         // 2. 检查阻断
         if (context.IsCancelled)
@@ -33,8 +33,8 @@ public class OpExecutor
         // 3. 执行原子操作
         op.Execute(context);
 
-        // 4. Fire After Hook
-        FireHook(context, isBefore: false);
+        // 4. After 阶段：上下文自己触发 HookBus
+        context.AfterOpExecute(_hookBus);
 
         // 5. 执行追加指令
         if (context.AppendedOps.Count == 0)
@@ -59,31 +59,18 @@ public class OpExecutor
     }
 
     /// <summary>
-    /// 根据 context 自身声明的 BeforeHookType / AfterHookType 触发 HookBus。
-    /// 不再依赖字符串拼接类型名。
-    /// </summary>
-    private void FireHook(HookContext context, bool isBefore)
-    {
-        var hookType = isBefore ? context.BeforeHookType : context.AfterHookType;
-        _hookBus.Fire(hookType, context);
-    }
-
-    /// <summary>
     /// 为追加指令创建子上下文——继承黑板快照，递增递归深度。
     /// </summary>
     private static HookContext CreateChildContext(HookContext parent)
     {
         var child = (HookContext)Activator.CreateInstance(parent.GetType())!;
 
-        // 拷贝黑板快照
         child.GetType().GetProperty(nameof(HookContext.Blackboard))!
             .SetValue(child, parent.Blackboard.Snapshot());
 
-        // 递增递归深度
         child.GetType().GetProperty(nameof(HookContext.RecursionDepth))!
             .SetValue(child, parent.RecursionDepth + 1);
 
-        // 拷贝元信息
         child.GetType().GetProperty(nameof(HookContext.SourceUnit))!
             .SetValue(child, parent.SourceUnit);
         child.GetType().GetProperty(nameof(HookContext.TargetUnit))!

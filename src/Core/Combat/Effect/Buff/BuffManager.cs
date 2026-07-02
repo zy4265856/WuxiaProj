@@ -132,10 +132,10 @@ public partial class BuffManager : Node
     {
         if (state.CompiledEffects == null) return;
 
-        foreach (var (hookType, handler) in state.CompiledEffects.Handlers)
+        foreach (var ((contextType, phase), handler) in state.CompiledEffects.Handlers)
         {
             var compiledHook = new CompiledBuffHook(handler, state);
-            RegisterHookToBus(hookType, compiledHook);
+            _hookBus.Register(contextType, phase, compiledHook);
         }
     }
 
@@ -143,21 +143,11 @@ public partial class BuffManager : Node
     {
         if (state.CompiledEffects == null) return;
 
-        foreach (var (hookType, handler) in state.CompiledEffects.Handlers)
+        foreach (var ((contextType, phase), handler) in state.CompiledEffects.Handlers)
         {
             var compiledHook = new CompiledBuffHook(handler, state);
-            UnregisterHookFromBus(hookType, compiledHook);
+            _hookBus.Unregister(contextType, phase, compiledHook);
         }
-    }
-
-    private void RegisterHookToBus(Type hookType, CompiledBuffHook hook)
-    {
-        _hookBus.Register(hookType, hook);
-    }
-
-    private void UnregisterHookFromBus(Type hookType, CompiledBuffHook hook)
-    {
-        _hookBus.Unregister(hookType, hook);
     }
 }
 

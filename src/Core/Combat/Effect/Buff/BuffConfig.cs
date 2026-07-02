@@ -16,7 +16,8 @@ public class BuffConfig
     public string Tag { get; init; } = "";
 
     /// <summary>
-    /// Hook 配置列表。在运行时由 BuffEffectCompiler 编译为 BuffDelegate。
+    /// Hook 配置列表。每个条目声明 contextType、phase、condition、actions。
+    /// 在运行时由 BuffEffectCompiler 编译为 BuffDelegate。
     /// </summary>
     public List<BuffHookEntry> Hooks { get; init; } = new();
 }
@@ -26,7 +27,12 @@ public class BuffConfig
 /// </summary>
 public class BuffHookEntry
 {
-    public string HookType { get; init; } = "";
+    /// <summary>上下文类型名，如 "HpModifyContext"</summary>
+    public string ContextType { get; init; } = "";
+
+    /// <summary>拦截阶段："Before" 或 "After"</summary>
+    public string Phase { get; init; } = "Before";
+
     public string Condition { get; init; } = "";
     public List<object> Actions { get; init; } = new();
 }

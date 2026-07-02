@@ -4,83 +4,51 @@ using System.Collections.Generic;
 namespace WuxiaProj.Combat;
 
 /// <summary>
-/// 事件总线。维护 HookPoint 类型 → 排序 IBuffHook 列表的映射。
-/// Buff 施加/移除时 Register/Unregister，OpExecutor 执行时 Fire。
+/// 事件总线。维护 (contextType, phase) → 排序 IBuffHook 列表的映射。
+/// Buff 施加/移除时注册/注销，HookContext.BeforeOpExecute/AfterOpExecute 触发。
 /// </summary>
 public class HookBus
 {
     /// <summary>
-    /// Type = typeof(BeforeHpModifyHook) 等 → 按 Priority 降序排列的 hook 集合。
+    /// (contextType, phase) → 按 Priority 降序排列的 hook 集合。
     /// </summary>
-    private readonly Dictionary<Type, SortedSet<RegisteredHook>> _hooks = new();
+    private readonly Dictionary<(Type ContextType, HookPhase Phase), SortedSet<RegisteredHook>> _hooks = new();
 
     /// <summary>
-    /// 注册一个 Buff Hook 到指定 HookPoint 类型。
+    /// 注册一个 Buff Hook 到指定 contextType 的指定 phase。
     /// </summary>
-    public void Register<TContext>(IBuffHook hook) where TContext : HookContext
+    public void Register(Type contextType, HookPhase phase, IBuffHook hook)
     {
-        var hookType = typeof(TContext);
-        if (!_hooks.TryGetValue(hookType, out var set))
+        var key = (contextType, phase);
+        if (!_hooks.TryGetValue(key, out var set))
         {
             set = new SortedSet<RegisteredHook>(RegisteredHookComparer.Instance);
-            _hooks[hookType] = set;
+            _hooks[key] = set;
         }
         set.Add(new RegisteredHook(hook));
     }
 
     /// <summary>
-    /// 从指定 HookPoint 类型注销一个 Buff Hook。
+    /// 从指定 contextType 的指定 phase 注销一个 Buff Hook。
     /// </summary>
-    public void Unregister<TContext>(IBuffHook hook) where TContext : HookContext
+    public void Unregister(Type contextType, HookPhase phase, IBuffHook hook)
     {
-        var hookType = typeof(TContext);
-        if (_hooks.TryGetValue(hookType, out var set))
+        var key = (contextType, phase);
+        if (_hooks.TryGetValue(key, out var set))
             set.Remove(new RegisteredHook(hook));
     }
 
     /// <summary>
-    /// 触发指定 HookPoint 类型的所有注册 Hook。按 Priority 降序调用。
-    /// IsCancelled 后仍继续调用剩余 hook。
+    /// 触发指定 contextType + phase 的所有注册 Hook。按 Priority 降序调用。
     /// </summary>
-    public void Fire<TContext>(TContext context) where TContext : HookContext
+    public void Fire(Type contextType, HookPhase phase, HookContext context)
     {
-        var hookType = typeof(TContext);
-        Fire(hookType, context);
-    }
-
-    /// <summary>
-    /// 非泛型重载。根据运行时确定的 HookPoint 类型触发 Fire。
-    /// OpExecutor 通过 context.BeforeHookType / AfterHookType 调用此方法。
-    /// </summary>
-    public void Fire(Type hookType, HookContext context)
-    {
-        if (!_hooks.TryGetValue(hookType, out var set))
+        var key = (contextType, phase);
+        if (!_hooks.TryGetValue(key, out var set))
             return;
 
         foreach (var registered in set)
             registered.Hook.OnHook(context);
-    }
-
-    /// <summary>
-    /// 非泛型 Register，供 BuffManager 通过反射调用。
-    /// </summary>
-    public void Register(Type hookType, IBuffHook hook)
-    {
-        if (!_hooks.TryGetValue(hookType, out var set))
-        {
-            set = new SortedSet<RegisteredHook>(RegisteredHookComparer.Instance);
-            _hooks[hookType] = set;
-        }
-        set.Add(new RegisteredHook(hook));
-    }
-
-    /// <summary>
-    /// 非泛型 Unregister。
-    /// </summary>
-    public void Unregister(Type hookType, IBuffHook hook)
-    {
-        if (_hooks.TryGetValue(hookType, out var set))
-            set.Remove(new RegisteredHook(hook));
     }
 
     private sealed class RegisteredHook
@@ -105,11 +73,9 @@ public class HookBus
             if (x == null) return -1;
             if (y == null) return 1;
 
-            // 降序：Priority 大的排前面
             var cmp = y.Priority.CompareTo(x.Priority);
             if (cmp != 0) return cmp;
 
-            // Priority 相同时按 HashCode 区分，确保不丢弃同优先级条目
             return x.Hook.GetHashCode().CompareTo(y.Hook.GetHashCode());
         }
     }

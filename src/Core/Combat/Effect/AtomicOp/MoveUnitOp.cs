@@ -5,13 +5,14 @@ namespace WuxiaProj.Combat;
 /// <summary>
 /// 单位移动的原子操作。
 /// </summary>
-public class MoveUnitOp : IAtomicOp
+public class MoveUnitOp : IAtomicOp<UnitMoveContext>
 {
     public Vector2I Delta { get; init; }
 
-    public void Execute(HookContext context)
+    void IAtomicOp.Execute(HookContext context) => Execute((UnitMoveContext)context);
+
+    public void Execute(UnitMoveContext context)
     {
-        var ctx = (UnitMoveContext)context;
-        GD.Print($"[MoveUnitOp] {ctx.SourceUnit}: {ctx.From} → {ctx.To}");
+        GD.Print($"[MoveUnitOp] {context.SourceUnit}: {context.From} → {context.To}");
     }
 }

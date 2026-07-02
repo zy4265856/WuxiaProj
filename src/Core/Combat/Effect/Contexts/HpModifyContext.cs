@@ -1,19 +1,12 @@
-using System;
 using System.Collections.Generic;
 
 namespace WuxiaProj.Combat;
-
-public sealed class BeforeHpModifyHook : HookPoint<HpModifyContext> { }
-public sealed class AfterHpModifyHook  : HookPoint<HpModifyContext> { }
 
 /// <summary>
 /// HP 修改操作的上下文。Amount 正值=治疗，负值=伤害。
 /// </summary>
 public class HpModifyContext : HookContext
 {
-    public override Type BeforeHookType => typeof(BeforeHpModifyHook);
-    public override Type AfterHookType => typeof(AfterHpModifyHook);
-
     public int Amount { get; set; }
     public string DamageType { get; init; } = "pure";
     public bool CanCrit { get; set; }

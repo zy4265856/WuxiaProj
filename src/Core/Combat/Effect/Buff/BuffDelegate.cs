@@ -5,9 +5,9 @@ namespace WuxiaProj.Combat;
 
 /// <summary>
 /// 编译后的 Buff 效果委托容器。
-/// 内部持有 HookPoint Type → Action&lt;HookContext&gt; 映射。
+/// Key = (contextType, HookPhase) 二元组。
 /// </summary>
 public class BuffDelegate
 {
-    public Dictionary<Type, Action<HookContext>> Handlers { get; } = new();
+    public Dictionary<(Type ContextType, HookPhase Phase), Action<HookContext>> Handlers { get; } = new();
 }
