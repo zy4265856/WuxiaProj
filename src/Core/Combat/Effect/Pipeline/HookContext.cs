@@ -1,31 +1,38 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WuxiaProj.Combat;
 
 /// <summary>
 /// Hook 上下文基类。携带一次原子操作执行所需的全部可变数据与黑板。
 /// 子类通过 BeforeOpExecute / AfterOpExecute 控制自身在管线中的调度行为。
-/// 子类须在静态构造器中调用 RegisterContextType() 登记短名 → Type 映射。
+/// 上下文类型通过约定自动注册：类名（如 "HpModifyContext"）即为 Buff 配置中引用的 key。
 /// </summary>
 public abstract class HookContext
 {
     private static readonly Dictionary<string, Type> ContextTypeRegistry = new();
+    private static bool _registryBuilt;
 
     /// <summary>
-    /// 子类静态构造器中调用，登记短名（如 "HpModifyContext"）到 Type 的映射。
-    /// </summary>
-    protected static void RegisterContextType(string name, Type contextType)
-    {
-        ContextTypeRegistry[name] = contextType;
-    }
-
-    /// <summary>
-    /// 根据短名查找上下文类型。BuffEffectCompiler 在编译阶段调用。
+    /// 根据短名（类名）查找上下文类型。首次调用时自动扫描程序集。
     /// </summary>
     internal static Type? ResolveContextType(string name)
     {
+        EnsureRegistryBuilt();
         return ContextTypeRegistry.TryGetValue(name, out var type) ? type : null;
+    }
+
+    private static void EnsureRegistryBuilt()
+    {
+        if (_registryBuilt) return;
+        _registryBuilt = true;
+
+        foreach (var type in typeof(HookContext).Assembly.GetTypes()
+            .Where(t => t is { IsAbstract: false, IsClass: true } && t.IsSubclassOf(typeof(HookContext))))
+        {
+            ContextTypeRegistry[type.Name] = type;
+        }
     }
     public bool IsCancelled { get; set; }
 

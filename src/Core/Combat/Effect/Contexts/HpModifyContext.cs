@@ -7,10 +7,6 @@ namespace WuxiaProj.Combat;
 /// </summary>
 public class HpModifyContext : HookContext
 {
-    static HpModifyContext()
-    {
-        RegisterContextType("HpModifyContext", typeof(HpModifyContext));
-    }
     public int Amount { get; set; }
     public string DamageType { get; init; } = "pure";
     public bool CanCrit { get; set; }
