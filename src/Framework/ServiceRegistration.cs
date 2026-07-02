@@ -1,4 +1,5 @@
-using WuxiaProj.DevSample;
+using WuxiaProj.DevSample.UI.Models;
+using WuxiaProj.DevSample.UI.ViewModels;
 using WuxiaProj.Framework;
 
 namespace WuxiaProj;
@@ -9,19 +10,13 @@ namespace WuxiaProj;
 /// </summary>
 public static class ServiceRegistration
 {
-    /// <summary>
-    /// 注册所有服务。Model → Singleton，ViewModel → Transient。
-    /// </summary>
     public static void RegisterAll()
     {
-        // Model（单例）
-        ServiceLocator.RegisterSingleton(new CharacterSheetModel());
+        // [DevTest] 示例：注册 DevTest Model / ViewModel
+        ServiceLocator.RegisterSingleton(new DevTestCharacterSheetModel());
 
-        // ViewModel（每次打开面板创建新实例，构造时需传入当前上下文参数）
-        // 注：此处仅示例 CharacterSheetViewModel 的注册方式，
-        // 实际 caller 应在 OpenAsync 前注册当前角色 ID 等上下文。
-        ServiceLocator.Register(() => new CharacterSheetViewModel(
-            ServiceLocator.Resolve<CharacterSheetModel>(),
+        ServiceLocator.Register(() => new DevTestCharacterSheetViewModel(
+            ServiceLocator.Resolve<DevTestCharacterSheetModel>(),
             ObjectId.New() // TODO: 替换为当前选中的角色ID
         ));
     }

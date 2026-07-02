@@ -1,18 +1,18 @@
 using System.Collections.Generic;
 using WuxiaProj.Framework;
 
-namespace WuxiaProj.DevSample;
+namespace WuxiaProj.DevSample.UI.Models;
 
 /// <summary>
-/// 角色属性面板的 Model 层。从 ObjectManager / ConfigDataManager 获取角色数据。
-/// 当前使用模拟数据，后续对接真实数据源。
+/// [DevTest] 角色属性面板的 Model 层示例。
+/// 展示如何从 ObjectManager / ConfigDataManager 获取角色数据并转换为数据载体。
 /// </summary>
-public class CharacterSheetModel
+public class DevTestCharacterSheetModel
 {
-    public CharacterData LoadCharacter(ObjectId id)
+    public DevTestCharacterData LoadCharacter(ObjectId id)
     {
         // TODO: 从 ObjectManager + ConfigDataManager 获取真实数据
-        return new CharacterData
+        return new DevTestCharacterData
         {
             Name = "示例角色",
             Level = 10,
@@ -30,7 +30,7 @@ public class CharacterSheetModel
             Charisma = 9,
             Vigor = 16,
             Precision = 12,
-            Skills = new List<SkillInfo>
+            Skills = new List<DevTestSkillInfo>
             {
                 new() { Name = "基础剑法", IconPath = "icon/skill_sword_basic" },
                 new() { Name = "轻功飞跃", IconPath = "icon/skill_leap" },
@@ -41,9 +41,9 @@ public class CharacterSheetModel
 }
 
 /// <summary>
-/// 角色数据载体。从游戏数据层获取后传递给 ViewModel。
+/// [DevTest] 角色数据载体。
 /// </summary>
-public class CharacterData
+public class DevTestCharacterData
 {
     public string Name { get; init; } = "";
     public int Level { get; init; }
@@ -52,7 +52,6 @@ public class CharacterData
     public int Mp { get; init; }
     public int MaxMp { get; init; }
 
-    // 十维属性
     public int Qi { get; init; }
     public int InnerBreath { get; init; }
     public int Physique { get; init; }
@@ -64,13 +63,13 @@ public class CharacterData
     public int Vigor { get; init; }
     public int Precision { get; init; }
 
-    public List<SkillInfo> Skills { get; init; } = new();
+    public List<DevTestSkillInfo> Skills { get; init; } = new();
 }
 
 /// <summary>
-/// 技能信息。
+/// [DevTest] 技能信息。
 /// </summary>
-public class SkillInfo
+public class DevTestSkillInfo
 {
     public string Name { get; init; } = "";
     public string IconPath { get; init; } = "";

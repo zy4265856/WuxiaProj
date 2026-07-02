@@ -1,13 +1,15 @@
 using System.Collections.Generic;
 using R3;
+using WuxiaProj.DevSample.UI.Models;
 using WuxiaProj.Framework;
 
-namespace WuxiaProj.DevSample;
+namespace WuxiaProj.DevSample.UI.ViewModels;
 
 /// <summary>
-/// 角色属性面板的 ViewModel。将 Model 数据转换为 View 可直接绑定的 R3 响应式属性。
+/// [DevTest] 角色属性面板的 ViewModel 示例。
+/// 展示如何将 Model 数据转换为 View 可直接绑定的 R3 响应式属性。
 /// </summary>
-public class CharacterSheetViewModel : ViewModelBase
+public class DevTestCharacterSheetViewModel : ViewModelBase
 {
     public ReactiveProperty<string> Name { get; } = new("");
 
@@ -29,16 +31,15 @@ public class CharacterSheetViewModel : ViewModelBase
     public Dictionary<string, ReactiveProperty<int>> Attributes { get; } = new();
 
     /// <summary>技能列表。</summary>
-    public List<SkillSlotViewModel> Skills { get; } = new();
+    public List<DevTestSkillSlotViewModel> Skills { get; } = new();
 
     /// <summary>关闭面板命令。</summary>
     public ReactiveCommand OnClose { get; } = new();
 
-    public CharacterSheetViewModel(CharacterSheetModel model, ObjectId characterId)
+    public DevTestCharacterSheetViewModel(DevTestCharacterSheetModel model, ObjectId characterId)
     {
         var data = model.LoadCharacter(characterId);
 
-        // 基本属性
         Name.Value = data.Name;
         Level.Value = data.Level;
         Hp.Value = data.Hp;
@@ -58,7 +59,7 @@ public class CharacterSheetViewModel : ViewModelBase
             .Subscribe(v => MpRatio.Value = v)
             .AddTo(Disposables);
 
-        // 十维属性（部分示例，其余同理）
+        // 十维属性
         Attributes["Qi"] = new ReactiveProperty<int>(data.Qi).AddTo(Disposables);
         Attributes["InnerBreath"] = new ReactiveProperty<int>(data.InnerBreath).AddTo(Disposables);
         Attributes["Physique"] = new ReactiveProperty<int>(data.Physique).AddTo(Disposables);
@@ -70,23 +71,22 @@ public class CharacterSheetViewModel : ViewModelBase
         Attributes["Vigor"] = new ReactiveProperty<int>(data.Vigor).AddTo(Disposables);
         Attributes["Precision"] = new ReactiveProperty<int>(data.Precision).AddTo(Disposables);
 
-        // 技能列表
         foreach (var skill in data.Skills)
-            Skills.Add(new SkillSlotViewModel(skill));
+            Skills.Add(new DevTestSkillSlotViewModel(skill));
     }
 }
 
 /// <summary>
-/// 单个技能槽位的 ViewModel。
+/// [DevTest] 单个技能槽位的 ViewModel。
 /// </summary>
-public class SkillSlotViewModel
+public class DevTestSkillSlotViewModel
 {
     public ReactiveProperty<string> Name { get; }
 
     /// <summary>技能图标逻辑名，View 层通过 ResourceManager 加载实际贴图。</summary>
     public ReactiveProperty<string> IconPath { get; }
 
-    public SkillSlotViewModel(SkillInfo info)
+    public DevTestSkillSlotViewModel(DevTestSkillInfo info)
     {
         Name = new ReactiveProperty<string>(info.Name);
         IconPath = new ReactiveProperty<string>(info.IconPath);
