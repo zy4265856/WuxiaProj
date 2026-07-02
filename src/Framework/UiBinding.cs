@@ -27,9 +27,8 @@ public static class UiBinding
     }
 
     /// <summary>
-    /// Button 绑定到 ReactiveCommand。
-    /// R3 1.x 中 CanExecute 为方法调用，异步观察 CanExecute 变更需额外封装。
-    /// 此处仅绑定点击 → 执行，CanExecute 灰显逻辑在 View 中手写。
+    /// Button 绑定到 ReactiveCommand。绑定点击 → 执行命令。
+    /// CanExecute 灰显逻辑在 View 中手写。
     /// </summary>
     public static IDisposable BindCommand(
         this Button button,

@@ -36,7 +36,6 @@
 |------|---------|------|
 | 可绑定属性 | `ReactiveProperty<T>` | `T` 可以是 Godot 类型 |
 | 命令/按钮 | `ReactiveCommand` | 绑定到 `Button.Pressed` |
-| 列表绑定 | `ReactiveCollection<T>` | 绑定到 `ItemList`/自建列表 |
 | 订阅管理 | `CompositeDisposable` | `Dispose()` 一键取消全部 |
 
 ### 边界约定
@@ -173,24 +172,8 @@ OnUpgrade.Subscribe(_ => Level.Value++).AddTo(Disposables);
 _upgradeButton.Pressed += () => vm.OnUpgrade.Execute(Unit.Default);
 ```
 
-- `ReactiveCommand` 自带 `CanExecute` 支持（`IObservable<bool>`），可绑定按钮 `Disabled` 属性。
-- 联动：`level.Select(l => l < maxLevel)` 作为 `CanExecute` 条件。
-
-### 3.4 ReactiveCollection → 列表
-
-```csharp
-// ViewModel
-public ReactiveCollection<ItemSlotVM> Slots { get; } = new();
-
-// View
-vm.Slots.ObserveAdd().Subscribe(addEv =>
-    AddItemView(addEv.Value, addEv.Index)).AddTo(ViewDisposables);
-vm.Slots.ObserveRemove().Subscribe(removeEv =>
-    RemoveItemView(removeEv.Index)).AddTo(ViewDisposables);
-```
-
-- `ObserveAdd` / `ObserveRemove` / `ObserveMove` / `ObserveReplace` 提供细粒度增量事件。
-- View 按事件增量更新子节点，避免全量重建列表。
+- `ReactiveCommand` 在构造时可传入 `IObservable<bool>` 作为 `CanExecute` 条件。
+- 联动：`level.Select(l => l < maxLevel)` 作为构造参数控制按钮灰显。
 
 ---
 
@@ -224,19 +207,7 @@ public static class UiBinding
 vm.Level.BindToSlider(_levelSlider).AddTo(ViewDisposables);
 ```
 
-### 4.2 集合同步（待 R3 补充）
-
-> ⚠️ R3 1.x 不含 `ReactiveCollection<T>`，该方法留作扩展预留。当前版本由 View 手动管理列表子节点。
-
-```csharp
-// 预留接口：后续版本或引入 ObservableCollections 包后实现
-public static IDisposable SyncTo<T>(
-    this ReactiveCollection<T> collection,
-    Container parent,
-    Func<T, Control> createView)
-```
-
-### 4.3 按钮命令绑定
+### 4.2 按钮命令绑定
 
 ```csharp
 public static IDisposable BindCommand(
@@ -244,18 +215,15 @@ public static IDisposable BindCommand(
     ReactiveCommand command)
 {
     button.Pressed += () => command.Execute(Unit.Default);
-    // 注意：R3 1.x 中 CanExecute 为方法(CanExecute(T))而非可观察属性，
-    // CanExecute 灰显需在 View 中另做订阅
     return Disposable.Create(() => { });
 }
 
-### 4.4 工具类总览
+### 4.3 工具类总览
 
 | 方法 | 方向 | 场景 |
 |------|------|------|
 | `BindToSlider` | ↔ | Slider ↔ ReactiveProperty&lt;int&gt; |
 | `BindCommand` | → | Button → ReactiveCommand（点击执行） |
-| `SyncTo<T>` | → | ReactiveCollection → 列表容器（待 R3 补充） |
 | `Subscribe` | ← | 通用单向（R3 原生，不封装） |
 
 ---
@@ -310,7 +278,7 @@ public class CharacterSheetViewModel : ViewModelBase
     public ReactiveProperty<float> HpRatio { get; } = new(1f);
 
     public Dictionary<string, ReactiveProperty<int>> Attributes { get; } = new();
-    public ReactiveCollection<SkillSlotViewModel> Skills { get; } = new();
+    public List<SkillSlotViewModel> Skills { get; } = new();
     public ReactiveCommand OnClose { get; } = new();
 
     public CharacterSheetViewModel(CharacterSheetModel model, ObjectId characterId)
@@ -324,7 +292,7 @@ public class CharacterSheetViewModel : ViewModelBase
 
         // 血量联动：Hp / MaxHp → HpRatio
         Observable.CombineLatest(Hp, MaxHp)
-            .Select(t => (float)t.First / t.Second)
+            .Select(t => (float)t[0] / t[1])
             .Subscribe(v => HpRatio.Value = v)
             .AddTo(Disposables);
 
@@ -372,14 +340,14 @@ public partial class CharacterSheet : UiPanel
         _vm.Name.Subscribe(v => _nameLabel.Text = v).AddTo(ViewDisposables);
         _vm.Level.Subscribe(v => _levelLabel.Text = $"Lv.{v}").AddTo(ViewDisposables);
 
-        _vm.Hp.CombineLatest(_vm.MaxHp)
-            .Subscribe(t => _hpLabel.Text = $"{t.First}/{t.Second}")
+        _vm.Hp.CombineLatest(_vm.MaxHp, (hp, maxHp) => $"{hp} / {maxHp}")
+            .Subscribe(v => _hpLabel.Text = v)
             .AddTo(ViewDisposables);
 
         _vm.HpRatio.Subscribe(v => _hpBar.Value = v).AddTo(ViewDisposables);
 
-        _vm.Skills.SyncTo(_skillGrid, vmSkill => CreateSkillView(vmSkill))
-            .AddTo(ViewDisposables);
+        foreach (var skill in _vm.Skills)
+            _skillGrid.AddChild(CreateSkillView(skill));
 
         _closeButton.BindCommand(_vm.OnClose).AddTo(ViewDisposables);
         _vm.OnClose.Subscribe(_ => UiManager.Instance.Close(this))
