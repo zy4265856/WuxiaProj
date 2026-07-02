@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace WuxiaProj.Combat;
@@ -10,6 +11,9 @@ public sealed class AfterHpModifyHook  : HookPoint<HpModifyContext> { }
 /// </summary>
 public class HpModifyContext : HookContext
 {
+    public override Type BeforeHookType => typeof(BeforeHpModifyHook);
+    public override Type AfterHookType => typeof(AfterHpModifyHook);
+
     public int Amount { get; set; }
     public string DamageType { get; init; } = "pure";
     public bool CanCrit { get; set; }

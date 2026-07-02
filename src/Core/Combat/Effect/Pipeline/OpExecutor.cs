@@ -59,25 +59,13 @@ public class OpExecutor
     }
 
     /// <summary>
-    /// 通过反射找到 context 类型对应的 BeforeXxxHook / AfterXxxHook 并 Fire。
-    /// 约定：context 类名 "HpModifyContext" → "BeforeHpModifyHook" / "AfterHpModifyHook"
+    /// 根据 context 自身声明的 BeforeHookType / AfterHookType 触发 HookBus。
+    /// 不再依赖字符串拼接类型名。
     /// </summary>
     private void FireHook(HookContext context, bool isBefore)
     {
-        var contextType = context.GetType();
-        var prefix = isBefore ? "Before" : "After";
-        var baseName = contextType.Name.Replace("Context", "");
-        var hookTypeName = $"WuxiaProj.Combat.{prefix}{baseName}Hook";
-        var hookType = contextType.Assembly.GetType(hookTypeName);
-
-        if (hookType == null)
-        {
-            GD.PushWarning($"[OpExecutor] 找不到 Hook 类型: {hookTypeName}");
-            return;
-        }
-
-        var fireMethod = typeof(HookBus).GetMethod("Fire")!.MakeGenericMethod(hookType);
-        fireMethod.Invoke(_hookBus, new object[] { context });
+        var hookType = isBefore ? context.BeforeHookType : context.AfterHookType;
+        _hookBus.Fire(hookType, context);
     }
 
     /// <summary>

@@ -45,13 +45,42 @@ public class HookBus
     public void Fire<TContext>(TContext context) where TContext : HookContext
     {
         var hookType = typeof(TContext);
+        Fire(hookType, context);
+    }
+
+    /// <summary>
+    /// 非泛型重载。根据运行时确定的 HookPoint 类型触发 Fire。
+    /// OpExecutor 通过 context.BeforeHookType / AfterHookType 调用此方法。
+    /// </summary>
+    public void Fire(Type hookType, HookContext context)
+    {
         if (!_hooks.TryGetValue(hookType, out var set))
             return;
 
         foreach (var registered in set)
-        {
             registered.Hook.OnHook(context);
+    }
+
+    /// <summary>
+    /// 非泛型 Register，供 BuffManager 通过反射调用。
+    /// </summary>
+    public void Register(Type hookType, IBuffHook hook)
+    {
+        if (!_hooks.TryGetValue(hookType, out var set))
+        {
+            set = new SortedSet<RegisteredHook>(RegisteredHookComparer.Instance);
+            _hooks[hookType] = set;
         }
+        set.Add(new RegisteredHook(hook));
+    }
+
+    /// <summary>
+    /// 非泛型 Unregister。
+    /// </summary>
+    public void Unregister(Type hookType, IBuffHook hook)
+    {
+        if (_hooks.TryGetValue(hookType, out var set))
+            set.Remove(new RegisteredHook(hook));
     }
 
     private sealed class RegisteredHook

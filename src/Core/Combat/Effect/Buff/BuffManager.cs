@@ -152,18 +152,12 @@ public partial class BuffManager : Node
 
     private void RegisterHookToBus(Type hookType, CompiledBuffHook hook)
     {
-        typeof(HookBus)
-            .GetMethod("Register")!
-            .MakeGenericMethod(hookType)
-            .Invoke(_hookBus, new object[] { hook });
+        _hookBus.Register(hookType, hook);
     }
 
     private void UnregisterHookFromBus(Type hookType, CompiledBuffHook hook)
     {
-        typeof(HookBus)
-            .GetMethod("Unregister")!
-            .MakeGenericMethod(hookType)
-            .Invoke(_hookBus, new object[] { hook });
+        _hookBus.Unregister(hookType, hook);
     }
 }
 
