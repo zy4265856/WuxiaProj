@@ -31,3 +31,11 @@ version_control/commit_on_save=false
 [rendering]
 
 textures/vram_compression/import_etc2_astc=true
+
+[autoload]
+
+ConfigDataManager="*res://src/Framework/ConfigDataManager.cs"
+ResourceManager="*res://src/Framework/ResourceManager.cs"
+ObjectManager="*res://src/Framework/ObjectManager.cs"
+SceneManager="*res://src/Framework/SceneManager.cs"
+UiManager="*res://src/Framework/UiManager.cs"
